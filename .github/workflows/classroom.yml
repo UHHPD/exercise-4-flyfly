@@ -1,0 +1,78 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: E1d
+      id: e1d
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: E1d
+        setup-command: make
+        command: "./run"
+        input: ''
+        expected-output: '0.0112'
+        comparison-method: contains
+        timeout: 10
+        max-score: 10
+    - name: E2b_2
+      id: e2b_2
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: E2b_2
+        setup-command: make
+        command: "./run"
+        input: ''
+        expected-output: '0.73805'
+        comparison-method: contains
+        timeout: 10
+        max-score: 100
+    - name: E2c_1
+      id: e2c_1
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: E2c_1
+        setup-command: make
+        command: "./run"
+        input: ''
+        expected-output: '1.38424'
+        comparison-method: contains
+        timeout: 10
+        max-score: 1000
+    - name: unit test
+      id: unit-test
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: unit test
+        setup-command: make
+        command: "./run"
+        input: ''
+        expected-output: |-
+          running tests...
+          testReadingSize... ok
+          testReadingMeasurement... ok
+          testReadingBinEdges... ok
+          testReadingErrors... ok
+          testCopyConstructor... ok
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        E1D_RESULTS: "${{steps.e1d.outputs.result}}"
+        E2B_2_RESULTS: "${{steps.e2b_2.outputs.result}}"
+        E2C_1_RESULTS: "${{steps.e2c_1.outputs.result}}"
+        UNIT-TEST_RESULTS: "${{steps.unit-test.outputs.result}}"
+      with:
+        runners: e1d,e2b_2,e2c_1,unit-test
